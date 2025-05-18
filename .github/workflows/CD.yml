@@ -54,6 +54,6 @@ jobs:
         username: ubuntu
         host: ${{ secrets.SSH_HOST }}
         key: ${{ secrets.SSH_KEY }}
-        script:
+        script: |
           cd ~/crame
           docker compose up -d
