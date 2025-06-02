@@ -14,8 +14,10 @@ import org.springframework.web.server.ServerWebExchange;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
+@Slf4j
 @Component
 @Order(-2)
 @RequiredArgsConstructor
@@ -26,6 +28,8 @@ public class GlobalExceptionHandler  implements ErrorWebExceptionHandler {
 	public Mono<Void> handle(ServerWebExchange exchange, Throwable exception) {
 		ErrorCode errorCode = ErrorCode.INTERNAL_SERVER_ERROR;
 		Map<String, Object> response = new HashMap<>();
+
+		log.error("에러 원인 : ",exception);
 
 		if (exception instanceof BaseException baseEx) {
 				errorCode = baseEx.getErrorCode();
