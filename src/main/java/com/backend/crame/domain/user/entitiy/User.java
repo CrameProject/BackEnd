@@ -1,19 +1,14 @@
-package com.backend.crame.domain.user;
+package com.backend.crame.domain.user.entitiy;
 
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import com.backend.crame.domain.terms.Terms;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -30,11 +25,15 @@ public class User {
 
 	private String email;
 
+	private UserStatus status;
+
 	@Field("terms")
 	private Terms terms;
 
 	private Boolean subscribe;
 
 	private String select_model;
+
+	private String domain; // 어떤 소셜 로그인인지 분기
 
 }
