@@ -1,16 +1,19 @@
 package com.backend.crame.domain.user.entitiy;
 
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import com.backend.crame.domain.terms.Terms;
 
-import jakarta.persistence.Id;
+
+
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Document(collection = "user")
 @Getter
@@ -18,22 +21,32 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access =  AccessLevel.PROTECTED)
 public class User {
+
 	@Id
 	private String user_uuid;
 
+	@Setter
 	private String wallet_uuid;
 
 	private String email;
 
+	@Setter
+	private String name; //이 이름을 설정하는 부분이 있으면 좋을 것 같긴하다
+
+	@Setter
 	private UserStatus status;
 
 	@Field("terms")
-	private Terms terms;
+	@Setter
+	private Terms terms; //약관에 대한 동의
 
-	private Boolean subscribe;
+	@Setter
+	private Boolean subscribe; //구독제 결제 유무
 
 	private String select_model;
 
 	private String domain; // 어떤 소셜 로그인인지 분기
+
+	private UserRole userRole;
 
 }
