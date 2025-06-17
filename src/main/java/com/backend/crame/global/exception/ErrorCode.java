@@ -13,6 +13,8 @@ public enum ErrorCode {
 	INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR,"서버에 오류가 발생하였습니다."),
 	JWT_KEY_GENERATION_FAILED(HttpStatus.BAD_REQUEST,"JWT 키 생성에 실패하였습니다."),
 	NO_REFRESH_TOKEN(UNAUTHORIZED, "리프레시 토큰이 없습니다."),
+	LOGOUT_ERROR(BAD_REQUEST,"로그아웃에 실패하였습니다."),
+	SIGNUP_ERROR(BAD_REQUEST,"회원가입에러입니다."),
 	EXPIRED_REFRESH_TOKEN(UNAUTHORIZED, "만료된 토큰입니다.");
 
 	;
@@ -25,4 +27,5 @@ public enum ErrorCode {
 		this.code = code;
 		this.message = message;
 	}
+
 }
