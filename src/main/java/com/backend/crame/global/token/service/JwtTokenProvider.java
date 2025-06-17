@@ -14,6 +14,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
+import com.backend.crame.domain.user.entitiy.User;
+import com.backend.crame.domain.user.entitiy.UserRole;
+import com.backend.crame.domain.user.repository.UserRepository;
 import com.backend.crame.global.exception.BaseException;
 import com.backend.crame.global.exception.ErrorCode;
 import com.backend.crame.global.token.dto.TokenResponse;
@@ -37,6 +40,7 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class JwtTokenProvider {
 
+	private final UserRepository userRepository;
 	@Value("${spring.jwt.secret}")
 	private String secret;
 
@@ -72,7 +76,7 @@ public class JwtTokenProvider {
 				.compact();
 			return token;
 		} catch (Exception e) {
-			throw new BaseException(ErrorCode.JWT_KEY_GENERATION_FAILED);
+			throw new IllegalArgumentException(e.getMessage());
 		}
 	}
 
@@ -121,6 +125,7 @@ public class JwtTokenProvider {
 	//이제 이미 있는 회원에 대한 로직을 조금 변경해야 한다.
 	//이미 로그인 되어있고 토큰이 있는 사람에 대한 로직을 조금 다르게 처리해야 함
 	//번들로 만들지 않고 새로운 유저에겐 회원가입을 하게끔 정보를 제공해줌 -> 이 로직을 따로 받아야하는건가?
+
 	public Mono<TokenResponse> createToken(String userId) {
 		try {
 			String accessToken = createAccessToken(userId);
@@ -134,10 +139,12 @@ public class JwtTokenProvider {
 				.expiryDate(expiryDate)
 				.build();
 
+			log.info("here is error");
 			return refreshTokenRepository.save(refreshTokenEntity)
+				.doOnError(err -> log.error("refreshToken 저장 중 에러", err))
 				.thenReturn(new TokenResponse(accessToken));
 		} catch (Exception e) {
-			return Mono.error(new BaseException(ErrorCode.LOGIN_FAIL));
+			throw new IllegalArgumentException(e.getMessage());
 		}
 	}
 
@@ -151,12 +158,15 @@ public class JwtTokenProvider {
 				.getPayload();
 
 			String userId = claims.getSubject();
-			Map<String, Object> attributes = Map.of("userId", userId);
-			CustomOAuth2User principal = new CustomOAuth2User(attributes, userId);
-			Authentication auth = new UsernamePasswordAuthenticationToken(principal, token, List.of());
-			return Mono.just(auth);
+
+			return userRepository.findById(userId)
+				.map(user -> {
+					Map<String, Object> attributes = Map.of("userId", userId);
+					CustomOAuth2User principal = new CustomOAuth2User(attributes, userId, user.getUserRole().name());
+					return new UsernamePasswordAuthenticationToken(principal, token, principal.getAuthorities());
+				});
 		} catch (Exception e) {
-			return Mono.empty();
+			throw new BaseException(ErrorCode.LOGIN_FAIL);
 		}
 	}
 
