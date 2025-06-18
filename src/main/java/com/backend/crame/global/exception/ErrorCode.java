@@ -1,6 +1,8 @@
 package com.backend.crame.global.exception;
 
+
 import static org.springframework.http.HttpStatus.*;
+
 
 import org.springframework.http.HttpStatus;
 
@@ -8,6 +10,7 @@ import lombok.Getter;
 
 @Getter
 public enum ErrorCode {
+
 
 	LOGIN_FAIL(HttpStatus.BAD_REQUEST,400,"로그인에 오류가 발생하였습니다."),
 	INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR,500,"서버에 오류가 발생하였습니다."),
@@ -29,5 +32,6 @@ public enum ErrorCode {
 		this.status = status;
 		this.message = message;
 	}
+
 
 }

@@ -1,5 +1,6 @@
 package com.backend.crame.global.config;
 
+
 import java.util.List;
 
 import org.springframework.context.annotation.Bean;
@@ -30,4 +31,5 @@ public class CorsConfig {
 		source.registerCorsConfiguration("/**", config);
 		return source;
 	}
+
 }
