@@ -35,7 +35,7 @@ public class GlobalExceptionHandler  implements ErrorWebExceptionHandler {
 				errorCode = baseEx.getErrorCode();
 		}
 
-			exchange.getResponse().setStatusCode(errorCode.getCode());
+			exchange.getResponse().setStatusCode(errorCode.getStatus());
 			exchange.getResponse().getHeaders().setContentType(MediaType.APPLICATION_JSON);
 
 			response.put("code", errorCode.getCode());
