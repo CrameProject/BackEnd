@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,7 +24,7 @@ import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping("/login/google")
+@RequestMapping("/api/login/google")
 @Tag(name = "구글 로그인 API", description = "구글 로그인 관련 API입니다.")
 @RequiredArgsConstructor
 public class GoogleController {
@@ -31,7 +32,7 @@ public class GoogleController {
 	private final GoogleOAuthService googleOAuthService;
 
 	//로그인 할 때 사용하는 것이다.
-	@GetMapping("")
+	@PostMapping("")
 	public Mono<ResponseEntity<Map<String, Object>>> loginWithGoogle(@RequestParam("code") String code) {
 		return googleOAuthService.loginWithGoogle(code)
 			.map(response -> ResponseEntity.ok().body(response))

@@ -14,8 +14,8 @@ public class BaseResponse {
 	}
 
 	public static ResponseEntity<ResponseDto<Void>> fail(ErrorCode errorCode){
-		return ResponseEntity.status(errorCode.getCode())
-			.body(new ResponseDto<>(errorCode.getCode(), errorCode.getMessage(),null));
+		return ResponseEntity.status(errorCode.getStatus())
+			.body(new ResponseDto<>(errorCode.getStatus(), errorCode.getMessage(),null));
 	}
 
 }
