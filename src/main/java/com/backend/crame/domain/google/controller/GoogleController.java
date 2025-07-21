@@ -3,6 +3,7 @@ package com.backend.crame.domain.google.controller;
 import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -45,7 +46,7 @@ public class GoogleController {
 	}
 
 
-	@GetMapping("/logout")
+	@DeleteMapping("/logout")
 	public Mono<ResponseEntity<?>> logout(@RequestParam("userId") String userId){
 		return googleOAuthService.logOut(userId)
 			.map(data->BaseResponse.success(SuccessCode.LOGOUT_SUCCESS,data));
