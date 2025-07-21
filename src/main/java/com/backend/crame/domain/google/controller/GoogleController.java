@@ -31,7 +31,6 @@ public class GoogleController {
 
 	private final GoogleOAuthService googleOAuthService;
 
-	//로그인 할 때 사용하는 것이다.
 	@PostMapping("")
 	public Mono<ResponseEntity<Map<String, Object>>> loginWithGoogle(@RequestParam("code") String code) {
 		return googleOAuthService.loginWithGoogle(code)
@@ -39,13 +38,10 @@ public class GoogleController {
 			.onErrorMap(e -> new IllegalArgumentException(e.getMessage()));
 	}
 
-	//회원가입 완료될 때 추가정보들을 포함해서 제공해주는 형태가 되는 것이다.
 	@PutMapping("/signup")
 	public Mono<ResponseEntity<?>> completeSignup(@RequestBody SignUpRequest request) {
 		return googleOAuthService.completeSignup(request)
-			// 성공 시 BaseResponse 래핑하고 HTTP 200 OK
 			.map(data -> BaseResponse.success(SuccessCode.SIGNUP_SUCCESS, data));
-			// 비즈니스 에러는 BaseResponse.error 로 감싸서 4xx/5xx 응답;
 	}
 
 
