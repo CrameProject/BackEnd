@@ -1,6 +1,7 @@
 package com.backend.crame.global.config;
 
 
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -57,5 +58,6 @@ public class SecurityConfig {
 			.addFilterAt(jwtFilter, SecurityWebFiltersOrder.AUTHENTICATION)
 			.build();
 	}
+
 
 }
