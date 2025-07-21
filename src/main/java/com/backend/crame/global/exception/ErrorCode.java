@@ -20,14 +20,13 @@ public enum ErrorCode {
 	SIGNUP_ERROR(BAD_REQUEST,400,"회원가입에러입니다."),
 	EXPIRED_REFRESH_TOKEN(UNAUTHORIZED, 400,"만료된 토큰입니다.");
 
-	;
 
 	private final HttpStatus status;
 	private final int code;
 	private final String message;
 
 
-	ErrorCode( HttpStatus status,int code, String message){
+	ErrorCode( HttpStatus status, int code, String message){
 		this.code = code;
 		this.status = status;
 		this.message = message;
