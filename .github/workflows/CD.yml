@@ -2,7 +2,7 @@ name: CD with Gradle
 
 on:
   push:
-    branches: [ "dev" ]
+    branches: [ "main", "dev" ]
 
 jobs:
   deploy:
@@ -17,7 +17,38 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
-      - name: Create application.yml with secrets
+      - name: Create application.yml with secrets (dev)
+        if: github.ref == 'refs/heads/dev'
+        run: |
+          mkdir -p src/main/resources
+          echo "spring:" >> src/main/resources/application.yml
+          echo "  jwt:" >> src/main/resources/application.yml
+          echo "    secret: \"${{ secrets.JWT_SECRET }}\"" >> src/main/resources/application.yml
+          echo "    access-token-duration: 10D" >> src/main/resources/application.yml
+          echo "    refresh-token-duration: 100D" >> src/main/resources/application.yml
+          echo "  security:" >> src/main/resources/application.yml
+          echo "    oauth2:" >> src/main/resources/application.yml
+          echo "      client:" >> src/main/resources/application.yml
+          echo "        registration:" >> src/main/resources/application.yml
+          echo "          google:" >> src/main/resources/application.yml
+          echo "            client-id: \"${{ secrets.GOOGLE_CLIENT_ID }}\"" >> src/main/resources/application.yml
+          echo "            client-secret: \"${{ secrets.GOOGLE_CLIENT_SECRET }}\"" >> src/main/resources/application.yml
+          echo "            scope:" >> src/main/resources/application.yml
+          echo "              - email" >> src/main/resources/application.yml
+          echo "              - profile" >> src/main/resources/application.yml
+          echo "            redirect-uri: https://dev.crame.site/login/oauth2/code/google" >> src/main/resources/application.yml
+          echo "  data:" >> src/main/resources/application.yml
+          echo "    mongodb:" >> src/main/resources/application.yml
+          echo "      uri: \"${{ secrets.MONGO_URI_DEV }}\"" >> src/main/resources/application.yml
+          echo "springdoc:" >> src/main/resources/application.yml
+          echo "  swagger-ui:" >> src/main/resources/application.yml
+          echo "    path: /swagger-ui.html" >> src/main/resources/application.yml
+          echo "  default-server-url: https://dev.crame.site" >> src/main/resources/application.yml
+          echo "  servers:" >> src/main/resources/application.yml
+          echo "    - url: https://dev.crame.site" >> src/main/resources/application.yml
+
+      - name: Create application.yml with secrets (main)
+        if: github.ref == 'refs/heads/main'
         run: |
           mkdir -p src/main/resources
           echo "spring:" >> src/main/resources/application.yml
