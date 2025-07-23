@@ -47,6 +47,12 @@ jobs:
           echo "  servers:" >> src/main/resources/application.yml
           echo "    - url: https://dev.crame.site" >> src/main/resources/application.yml
 
+      - name: Print application.yml (dev)
+        if: github.ref == 'refs/heads/dev'
+        run: |
+          echo "====== DEV application.yml ======"
+          cat src/main/resources/application.yml
+          
       - name: Create application.yml with secrets (main)
         if: github.ref == 'refs/heads/main'
         run: |
