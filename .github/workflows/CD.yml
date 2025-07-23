@@ -1,58 +1,63 @@
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
-# This workflow will build a Java project with Gradle and cache/restore any dependencies to improve the workflow execution time
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-gradle
-
-name: Java CI with Gradle
+name: CD with Gradle
 
 on:
   push:
-    branches: [ "dev" ]
-
-concurrency:
-  group: build-${{ github.ref }}
-  cancel-in-progress: true
+    branches: [ "main" ]
 
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
-      - name: Set up JDK 17
+
+      - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
+          java-version: '21'
           distribution: 'temurin'
 
-        # Configure Gradle for optimal use in GitHub Actions, including caching of downloaded dependencies.
-      # See: https://github.com/gradle/actions/blob/main/setup-gradle/README.md
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          cache-disabled: true
-
-      - name: add properites
+      - name: Create application.yml with secrets
         run: |
           mkdir -p src/main/resources
-          echo "${{ secrets.PROPERTIES }}" > src/main/resources/application.properties
+          echo "spring:" >> src/main/resources/application.yml
+          echo "  jwt:" >> src/main/resources/application.yml
+          echo "    secret: \"${{ secrets.JWT_SECRET }}\"" >> src/main/resources/application.yml
+          echo "    access-token-duration: 10D" >> src/main/resources/application.yml
+          echo "    refresh-token-duration: 100D" >> src/main/resources/application.yml
+          echo "  security:" >> src/main/resources/application.yml
+          echo "    oauth2:" >> src/main/resources/application.yml
+          echo "      client:" >> src/main/resources/application.yml
+          echo "        registration:" >> src/main/resources/application.yml
+          echo "          google:" >> src/main/resources/application.yml
+          echo "            client-id: \"${{ secrets.GOOGLE_CLIENT_ID }}\"" >> src/main/resources/application.yml
+          echo "            client-secret: \"${{ secrets.GOOGLE_CLIENT_SECRET }}\"" >> src/main/resources/application.yml
+          echo "            scope:" >> src/main/resources/application.yml
+          echo "              - email" >> src/main/resources/application.yml
+          echo "              - profile" >> src/main/resources/application.yml
+          echo "            redirect-uri: https://crame.site/login/oauth2/code/google" >> src/main/resources/application.yml
+          echo "  data:" >> src/main/resources/application.yml
+          echo "    mongodb:" >> src/main/resources/application.yml
+          echo "      uri: \"${{ secrets.MONGO_URI }}\"" >> src/main/resources/application.yml
+          echo "springdoc:" >> src/main/resources/application.yml
+          echo "  swagger-ui:" >> src/main/resources/application.yml
+          echo "    path: /swagger-ui.html" >> src/main/resources/application.yml
 
       - name: Build with Gradle Wrapper
-        run: ./gradlew build -x test
+        run: |
+          chmod +x ./gradlew
+          ./gradlew build -x test
 
-      - name: Transfer Build File using SCP
-        uses: appleboy/scp-action@master  # .jar 파일 원격 서버로 복사
+      - name: Transfer .jar file to EC2
+        uses: appleboy/scp-action@master
         with:
-          username: ubuntu
           host: ${{ secrets.SSH_HOST }}
+          username: ubuntu
           key: ${{ secrets.SSH_KEY }}
-          source: |
-            build/libs/crame-0.0.1-SNAPSHOT.jar
+          source: "build/libs/*.jar"
           target: "/home/ubuntu/crame"
 
-      - name: execute
+      - name: Restart docker compose on EC2
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -60,4 +65,5 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             cd ~/crame
-            docker compose up -d
+            docker compose up -d --build
+            docker image prune -f
