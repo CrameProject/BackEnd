@@ -15,8 +15,8 @@ import org.springframework.security.web.server.util.matcher.AndServerWebExchange
 import org.springframework.security.web.server.util.matcher.NegatedServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
 
-import com.backend.crame.global.token.service.JwtAuthenticationConverter;
-import com.backend.crame.global.token.service.JwtAuthenticationManager;
+import com.backend.crame.domain.token.service.JwtAuthenticationConverter;
+import com.backend.crame.domain.token.service.JwtAuthenticationManager;
 
 import lombok.RequiredArgsConstructor;
 

@@ -1,12 +1,13 @@
 package com.backend.crame.domain.user.entitiy;
 
+import java.time.LocalDate;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import com.backend.crame.domain.user.entitiy.terms.Terms;
-
-
+import com.backend.crame.global.utils.BaseTimeEntity;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -20,7 +21,7 @@ import lombok.Setter;
 @Builder
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access =  AccessLevel.PROTECTED)
-public class User {
+public class User extends BaseTimeEntity {
 
 	@Id
 	private String user_uuid;
@@ -44,8 +45,7 @@ public class User {
 	private UserStatus status;
 
 	@Setter
-	private String birthNum;
-
+	private LocalDate birthDate;
 
 
 	@Field("terms")
