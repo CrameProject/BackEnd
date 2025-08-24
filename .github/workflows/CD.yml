@@ -44,6 +44,36 @@ jobs:
           echo "      host: redis" >> src/main/resources/application.yml
           echo "      port: 6379" >> src/main/resources/application.yml
           echo "      password: \"${{ secrets.REDIS_PASSWORD }}\"" >> src/main/resources/application.yml
+          echo "  mail:" >> src/main/resources/application.yml
+          echo "    host: smtp.gmail.com" >> src/main/resources/application.yml
+          echo "    port: 587" >> src/main/resources/application.yml
+          echo "    username: \"${{ secrets.MAIL_USERNAME }}\"" >> src/main/resources/application.yml
+          echo "    password: \"${{ secrets.MAIL_PASSWORD }}\"" >> src/main/resources/application.yml
+          echo "    properties:" >> src/main/resources/application.yml
+          
+          echo "      mail.smtp.auth: true" >> src/main/resources/application.yml
+          echo "      mail.smtp.starttls.enable: true" >> src/main/resources/application.yml
+          echo "      mail.smtp.connectiontimeout: 5000" >> src/main/resources/application.yml
+          echo "      mail.smtp.timeout: 5000" >> src/main/resources/application.yml
+          echo "      mail.smtp.writetimeout: 5000" >> src/main/resources/application.yml
+          echo "      mail.mime.charset: UTF-8" >> src/main/resources/application.yml
+          echo "    default-encoding: UTF-8" >> src/main/resources/application.yml
+
+          echo "app:" >> src/main/resources/application.yml
+          echo "  secrets:" >> src/main/resources/application.yml
+          echo "    master-key-base64: \"${{ secrets.MASTER_KEY_BASE64 }}\"" >> src/main/resources/application.yml
+          echo "    key-version: kv1" >> src/main/resources/application.yml
+          echo "  mail:" >> src/main/resources/application.yml
+          echo "    from: \"${{ secrets.MAIL_USERNAME }}\"" >> src/main/resources/application.yml
+          echo "    from-personal: \"CRAME\"" >> src/main/resources/application.yml
+
+          echo "otp:" >> src/main/resources/application.yml
+          echo "  ttl-seconds: 300" >> src/main/resources/application.yml
+          echo "  cooldown-seconds: 60" >> src/main/resources/application.yml
+          echo "  max-attempts: 5" >> src/main/resources/application.yml
+          echo "  rate:" >> src/main/resources/application.yml
+          echo "    window-seconds: 60" >> src/main/resources/application.yml
+          echo "    max-per-window: 6" >> src/main/resources/application.yml
           echo "springdoc:" >> src/main/resources/application.yml
           echo "  swagger-ui:" >> src/main/resources/application.yml
           echo "    path: /swagger-ui.html" >> src/main/resources/application.yml
@@ -84,6 +114,35 @@ jobs:
           echo "      host: redis" >> src/main/resources/application.yml
           echo "      port: 6379" >> src/main/resources/application.yml
           echo "      password: \"${{ secrets.REDIS_PASSWORD }}\"" >> src/main/resources/application.yml
+          echo "  mail:" >> src/main/resources/application.yml
+          echo "    host: smtp.gmail.com" >> src/main/resources/application.yml
+          echo "    port: 587" >> src/main/resources/application.yml
+          echo "    username: \"${{ secrets.MAIL_USERNAME }}\"" >> src/main/resources/application.yml
+          echo "    password: \"${{ secrets.MAIL_PASSWORD }}\"" >> src/main/resources/application.yml
+          echo "    properties:" >> src/main/resources/application.yml
+          echo "      mail.smtp.auth: true" >> src/main/resources/application.yml
+          echo "      mail.smtp.starttls.enable: true" >> src/main/resources/application.yml
+          echo "      mail.smtp.connectiontimeout: 5000" >> src/main/resources/application.yml
+          echo "      mail.smtp.timeout: 5000" >> src/main/resources/application.yml
+          echo "      mail.smtp.writetimeout: 5000" >> src/main/resources/application.yml
+          echo "      mail.mime.charset: UTF-8" >> src/main/resources/application.yml
+          echo "    default-encoding: UTF-8" >> src/main/resources/application.yml
+
+          echo "app:" >> src/main/resources/application.yml
+          echo "  secrets:" >> src/main/resources/application.yml
+          echo "    master-key-base64: \"${{ secrets.MASTER_KEY_BASE64 }}\"" >> src/main/resources/application.yml
+          echo "    key-version: kv1" >> src/main/resources/application.yml
+          echo "  mail:" >> src/main/resources/application.yml
+          echo "    from: \"${{ secrets.MAIL_USERNAME }}\"" >> src/main/resources/application.yml
+          echo "    from-personal: \"CRAME\"" >> src/main/resources/application.yml
+
+          echo "otp:" >> src/main/resources/application.yml
+          echo "  ttl-seconds: 300" >> src/main/resources/application.yml
+          echo "  cooldown-seconds: 60" >> src/main/resources/application.yml
+          echo "  max-attempts: 5" >> src/main/resources/application.yml
+          echo "  rate:" >> src/main/resources/application.yml
+          echo "    window-seconds: 60" >> src/main/resources/application.yml
+          echo "    max-per-window: 6" >> src/main/resources/application.yml
           echo "springdoc:" >> src/main/resources/application.yml
           echo "  swagger-ui:" >> src/main/resources/application.yml
           echo "    path: /swagger-ui.html" >> src/main/resources/application.yml
