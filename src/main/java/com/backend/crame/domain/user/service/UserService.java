@@ -8,10 +8,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.backend.crame.domain.user.dto.ChangeUserRequest;
+import com.backend.crame.domain.user.dto.NewPasswordRequest;
 import com.backend.crame.domain.user.dto.SignInRequest;
 import com.backend.crame.domain.user.dto.SignUpRequest;
 import com.backend.crame.domain.token.entity.CustomPrincipal;
+import com.backend.crame.domain.user.dto.UserIdResponse;
 import com.backend.crame.domain.user.dto.UserInfoResponse;
+import com.backend.crame.domain.user.dto.UserUuidResponse;
 import com.backend.crame.domain.user.entitiy.Domain;
 import com.backend.crame.domain.user.entitiy.User;
 import com.backend.crame.domain.user.entitiy.UserRole;
@@ -85,18 +88,29 @@ public class UserService {
 	}
 
 	//아이디 찾기 -> 이메일로 찾기
-	public Mono<String> getId(String email){
+	public Mono<UserIdResponse> getId(String email){
 		return userRepository.findByEmail(email)
 			.switchIfEmpty(Mono.error(new BaseException(ErrorCode.USER_NOT)))
-			.map(User::getLoginId);
+			.map(user-> new UserIdResponse(user.getLoginId()));
 	}
 
 
 	//비밀번호 찾기 -> 이름 + 이메일? 로 찾기 아니면 이메일로만 찾기
-
+	public Mono<UserUuidResponse> getPassword(String name, String loginId){
+		return userRepository.findByNameAndLoginId(name,loginId)
+			.switchIfEmpty(Mono.error(new BaseException(ErrorCode.USER_NOT)))
+			.map(user-> new UserUuidResponse(user.getUser_uuid()));
+	}
 
 	//비밀번호 변경
-
+	public Mono<Void> makeNewPassword(NewPasswordRequest request){
+		return userRepository.findById(request.uuid())
+			.switchIfEmpty(Mono.error(new BaseException(ErrorCode.USER_NOT)))
+			.map(user ->{
+				user.setPassword(request.newPassword());
+				return userRepository.save(user);
+			}).then();
+	}
 
 	// 회원가입 완료 처리
 	public Mono<TokenResponse> completeSignup(SignUpRequest request) {

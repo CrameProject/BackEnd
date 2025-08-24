@@ -13,10 +13,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.backend.crame.domain.user.dto.ChangeUserRequest;
+import com.backend.crame.domain.user.dto.NewPasswordRequest;
 import com.backend.crame.domain.user.dto.SignInRequest;
 import com.backend.crame.domain.user.dto.SignUpRequest;
 import com.backend.crame.domain.token.entity.CustomPrincipal;
+import com.backend.crame.domain.user.dto.UserIdResponse;
 import com.backend.crame.domain.user.dto.UserInfoResponse;
+import com.backend.crame.domain.user.dto.UserUuidResponse;
 import com.backend.crame.domain.user.service.UserService;
 import com.backend.crame.global.response.BaseResponse;
 import com.backend.crame.global.response.dto.ResponseDto;
@@ -79,22 +82,26 @@ public class UserController {
 	//등록한 이메일로 찾기
 	@GetMapping("/id")
 	@Operation(summary = "ID 찾기 API")
-	public Mono<ResponseEntity<ResponseDto<String>>> getId(@RequestParam String email){
+	public Mono<ResponseEntity<ResponseDto<UserIdResponse>>> getId(@RequestParam String email){
 		return userService.getId(email)
-			.map(data -> BaseResponse.success(SuccessCode.NEWTOKEN_SUCCESS, data));
+			.map(data -> BaseResponse.success(SuccessCode.IDFOUND_SUCCESS, data));
 	}
 
 	//비밀 번호 찾기 -> 얘는 제대로 된 사람인지 검증하고 -> 맞으면
 	@GetMapping("/password/before")
 	@Operation(summary = "비밀번호 찾기 API -> 이걸 통해서 등록된 유저인지 검증 -> /password/after로 비밀번호 변경")
-	public Mono<ResponseEntity<ResponseDto<String>>> getPassword(@RequestParam String name, @RequestParam String email){
-		return userService.getNewToken(customPrincipal)
-			.map(data -> BaseResponse.success(SuccessCode.NEWTOKEN_SUCCESS, data));
+	public Mono<ResponseEntity<ResponseDto<UserUuidResponse>>> getPassword(@RequestParam String name, @RequestParam String loginId){
+		return userService.getPassword(name,loginId)
+			.map(data -> BaseResponse.success(SuccessCode.PASSWORD_BEFORE_SUCCESS, data));
 	}
 
 	//비밀번호 변경
-	// @PostMapping("/password/after")
-	// @Operation(summary = "비밀번호 변경 API")
+	@PostMapping("/password/after")
+	@Operation(summary = "비밀번호 변경 API")
+	public Mono<ResponseEntity<ResponseDto<Void>>> makeNewPassWord(@RequestBody NewPasswordRequest request){
+		return userService.makeNewPassword(request)
+			.map(data -> BaseResponse.success(SuccessCode.PASSWORD_BEFORE_SUCCESS, data));
+	}
 
 	@DeleteMapping("/logout")
 	@Operation(summary = "로그아웃 API")
