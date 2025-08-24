@@ -1,12 +1,13 @@
 package com.backend.crame.domain.user.entitiy;
 
+import java.time.LocalDate;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-import com.backend.crame.domain.terms.Terms;
-
-
+import com.backend.crame.domain.user.entitiy.terms.Terms;
+import com.backend.crame.global.utils.BaseTimeEntity;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -20,7 +21,7 @@ import lombok.Setter;
 @Builder
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @NoArgsConstructor(access =  AccessLevel.PROTECTED)
-public class User {
+public class User extends BaseTimeEntity {
 
 	@Id
 	private String user_uuid;
@@ -28,13 +29,27 @@ public class User {
 	@Setter
 	private String wallet_uuid;
 
+	@Setter
 	private String email;
+
+	@Setter
+	private String loginId;
+
+	@Setter
+	private String password;
 
 	@Setter
 	private String name; //이 이름을 설정하는 부분이 있으면 좋을 것 같긴하다
 
 	@Setter
 	private UserStatus status;
+
+	@Setter
+	private LocalDate birthDate;
+
+	@Setter
+	private String phoneNum;
+
 
 	@Field("terms")
 	@Setter
@@ -43,9 +58,10 @@ public class User {
 	@Setter
 	private Boolean subscribe; //구독제 결제 유무
 
+	@Setter
 	private String select_model;
 
-	private String domain; // 어떤 소셜 로그인인지 분기
+	private Domain domain; // 어떤 소셜 로그인인지 분기
 
 	private UserRole userRole;
 

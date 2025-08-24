@@ -19,7 +19,8 @@ public class SwaggerConfig {
 			.components(new Components())
 			.info(apiInfo())
 			.addSecurityItem(securityRequirement)
-			.schemaRequirement("BearerAuth", securityScheme());
+			.schemaRequirement("BearerAuth", securityScheme())
+		;
 	}
 
 	private Info apiInfo() {
