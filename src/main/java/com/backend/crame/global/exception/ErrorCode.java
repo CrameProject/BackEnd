@@ -7,6 +7,8 @@ import static org.springframework.http.HttpStatus.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 
+import com.backend.crame.global.response.BaseResponse;
+
 import lombok.Getter;
 
 @Getter
@@ -24,7 +26,10 @@ public enum ErrorCode {
 	EXPIRED_REFRESH_TOKEN(UNAUTHORIZED, 400,"만료된 토큰입니다."),
 
 	USER_NOT(BAD_REQUEST,404,"유저를 찾을 수 없습니다."),
-	ALREADY_REGISTERED_EMAIL(BAD_REQUEST,400,"이미 회원가입된 이메일입니다.");
+	ALREADY_REGISTERED_EMAIL(BAD_REQUEST,400,"이미 회원가입된 이메일입니다."),
+	NOT_LOCAL_ACCOUNT(BAD_REQUEST,404,"로컬 계정이 아닙니다."),
+	SIGNUP_INCOMPLETE(BAD_REQUEST,400,"회원가입이 완료되지 않은 계정입니다.");
+
 
 
 	private final HttpStatus status;

@@ -8,6 +8,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.backend.crame.domain.user.dto.ChangeUserRequest;
+import com.backend.crame.domain.user.dto.SignInRequest;
 import com.backend.crame.domain.user.dto.SignUpRequest;
 import com.backend.crame.domain.token.entity.CustomPrincipal;
 import com.backend.crame.domain.user.dto.UserInfoResponse;
@@ -37,6 +38,32 @@ public class UserService {
 
 
 	//일반 로그인
+	public Mono<TokenResponse> localLogin(SignInRequest request){
+		final String loginId = request.id();
+		final String rawPassword = request.password();
+
+		return userRepository.findByLoginId(loginId)
+			.switchIfEmpty(Mono.defer(() -> {
+				passwordEncoder.matches(rawPassword, "$2a$12$5bpwOA4iJcQ8G9l7q1lT3ORbH1s0e3F3m3s2b8m8cVZDRv2lKk2qC");
+				return Mono.error(new BaseException(ErrorCode.LOGIN_FAIL));
+			}))
+			.flatMap(user -> {
+				if (user.getDomain() != Domain.LOCAL) {
+					return Mono.error(new BaseException(ErrorCode.NOT_LOCAL_ACCOUNT));
+				}
+				if (user.getStatus() == UserStatus.DELETED) {
+					return Mono.error(new BaseException(ErrorCode.ALREADY_SIGNOUT_USER));
+				}
+				if (user.getStatus() == UserStatus.PENDING) {
+					return Mono.error(new BaseException(ErrorCode.SIGNUP_INCOMPLETE));
+				}
+
+				if (!passwordEncoder.matches(rawPassword, user.getPassword())) {
+					return Mono.error(new BaseException(ErrorCode.LOGIN_FAIL));
+				}
+				return jwtTokenProvider.createToken(user.getName(),user.getUser_uuid(),user.getUserRole().toString(),user.getDomain().toString());
+			});
+	}
 
 	//토큰 재발급
 

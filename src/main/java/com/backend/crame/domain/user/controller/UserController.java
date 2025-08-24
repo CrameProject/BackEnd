@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.backend.crame.domain.user.dto.ChangeUserRequest;
+import com.backend.crame.domain.user.dto.SignInRequest;
 import com.backend.crame.domain.user.dto.SignUpRequest;
 import com.backend.crame.domain.token.entity.CustomPrincipal;
 import com.backend.crame.domain.user.dto.UserInfoResponse;
@@ -52,9 +53,9 @@ public class UserController {
 	//일반 로그인 -> 해야함
 	@PostMapping("/local/signIn")
 	@Operation(summary = "일반 로그인 API")
-	public Mono<ResponseEntity<ResponseDto<TokenResponse>>> signIn(@RequestBody SignUpRequest request) {
-		return userService.signUp(request)
-			.map(data -> BaseResponse.success(SuccessCode.SIGNUP_SUCCESS, data));
+	public Mono<ResponseEntity<ResponseDto<TokenResponse>>> signIn(@RequestBody SignInRequest request) {
+		return userService.localLogin(request)
+			.map(data -> BaseResponse.success(SuccessCode.LOGIN_SUCCESS, data));
 	}
 
 	//회원 정보 가져오기
@@ -62,7 +63,7 @@ public class UserController {
 	@Operation(summary = "사용자 정보 가져오기 API")
 	public Mono<ResponseEntity<ResponseDto<UserInfoResponse>>> getInfo(@AuthenticationPrincipal CustomPrincipal customPrincipal) {
 		return userService.getInfo(customPrincipal)
-			.map(data -> BaseResponse.success(SuccessCode.SIGNUP_SUCCESS, data));
+			.map(data -> BaseResponse.success(SuccessCode.GETINFO_SUCCESS, data));
 	}
 
 	//토큰 재발급
