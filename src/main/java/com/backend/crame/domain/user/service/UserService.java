@@ -4,6 +4,7 @@ package com.backend.crame.domain.user.service;
 import java.time.LocalDate;
 import java.util.UUID;
 
+import org.springframework.data.redis.core.ReactiveStringRedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -38,6 +39,7 @@ public class UserService {
 	private final RefreshTokenRepository refreshTokenRepository;
 	private final JwtTokenProvider jwtTokenProvider;
 	private final PasswordEncoder passwordEncoder;
+	private final ReactiveStringRedisTemplate redis;
 
 
 	//일반 로그인
@@ -140,31 +142,38 @@ public class UserService {
 		final String email = request.email();
 		final LocalDate dob = BirthdateParser.parseToLocalDate(request.birthNumber());
 
-		return userRepository.findByEmail(email)
-			.flatMap(existing -> Mono.error(new BaseException(ErrorCode.ALREADY_REGISTERED_EMAIL)))
-			.switchIfEmpty(Mono.defer(() -> {
-				User newUser = User.builder()
-					.user_uuid(uuid)
-					.domain(Domain.LOCAL)
-					.birthDate(dob)
-					.email(email)
-					.loginId(request.id())
-					.name(request.name())
-					.phoneNum(request.phoneNum())
-					.password(passwordEncoder.encode(request.password()))
-					.select_model("")
-					.status(UserStatus.SUCCESS)
-					.terms(request.terms())
-					.userRole(UserRole.ROLE_USER)
-					.subscribe(false)
-					.wallet_uuid(request.walletUuid())
-					.build();
+		String vkey = verifiedKeyForSignup(email);
 
-				return userRepository.save(newUser);
-			}))
-			.cast(User.class)
-			.flatMap(saved -> jwtTokenProvider.createToken(saved.getName(), saved.getUser_uuid(),
-				saved.getUserRole().toString(), saved.getDomain().toString()));
+		return redis.opsForValue().get(vkey)
+			.switchIfEmpty(Mono.error(new BaseException(ErrorCode.EMAIL_NOT_VERIFIED)))
+			.then(userRepository.findByEmail(email)
+				.flatMap(existing -> Mono.error(new BaseException(ErrorCode.ALREADY_REGISTERED_EMAIL)))
+				.switchIfEmpty(Mono.defer(() -> {
+					User newUser = User.builder()
+						.user_uuid(uuid)
+						.domain(Domain.LOCAL)
+						.birthDate(dob)
+						.email(email)
+						.loginId(request.id())
+						.name(request.name())
+						.phoneNum(request.phoneNum())
+						.password(passwordEncoder.encode(request.password()))
+						.select_model("")
+						.status(UserStatus.SUCCESS)
+						.terms(request.terms())
+						.userRole(UserRole.ROLE_USER)
+						.subscribe(false)
+						.wallet_uuid(request.walletUuid())
+						.build();
+					return userRepository.save(newUser);
+				}))
+				.cast(User.class)
+				.flatMap(saved -> redis.delete(vkey).thenReturn(saved))
+				.flatMap(saved -> jwtTokenProvider.createToken(
+					saved.getName(), saved.getUser_uuid(),
+					saved.getUserRole().toString(), saved.getDomain().toString()
+				))
+			);
 	}
 
 
@@ -219,5 +228,8 @@ public class UserService {
 			);
 	}
 
+	private String verifiedKeyForSignup(String email) {
+		return "otp:verified:SIGN_UP:" + email.toLowerCase();
+	}
 
 }

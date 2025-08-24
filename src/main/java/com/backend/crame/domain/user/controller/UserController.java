@@ -33,7 +33,7 @@ import reactor.core.publisher.Mono;
 
 
 @RestController
-@RequestMapping("/api/v1/user")
+@RequestMapping("/api/v1/auth/user")
 @Tag(name = "유저관련 API", description = "유저 관련 API입니다.")
 @RequiredArgsConstructor
 public class UserController {

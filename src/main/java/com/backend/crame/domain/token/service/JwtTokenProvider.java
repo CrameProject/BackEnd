@@ -103,8 +103,6 @@ public class JwtTokenProvider {
 	}
 
 
-
-
 	public Mono<TokenResponse> createToken(String userName, String userId,String role, String domain) {
 		try {
 			String accessToken = createAccessToken(userId,role,domain);
@@ -118,7 +116,6 @@ public class JwtTokenProvider {
 				.expiryDate(expiryDate)
 				.build();
 
-			log.info("here is error");
 			return refreshTokenRepository.save(refreshTokenEntity)
 				.doOnError(err -> log.error("refreshToken 저장 중 에러", err))
 				.thenReturn(new TokenResponse(accessToken,refreshToken,userName));
