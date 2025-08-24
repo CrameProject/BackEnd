@@ -1,4 +1,4 @@
-package com.backend.crame.global.token.service;
+package com.backend.crame.domain.token.service;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
