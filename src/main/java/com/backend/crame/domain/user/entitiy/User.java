@@ -4,7 +4,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-import com.backend.crame.domain.terms.Terms;
+import com.backend.crame.domain.user.entitiy.terms.Terms;
 
 
 
@@ -28,13 +28,25 @@ public class User {
 	@Setter
 	private String wallet_uuid;
 
+	@Setter
 	private String email;
+
+	@Setter
+	private String loginId;
+
+	@Setter
+	private String password;
 
 	@Setter
 	private String name; //이 이름을 설정하는 부분이 있으면 좋을 것 같긴하다
 
 	@Setter
 	private UserStatus status;
+
+	@Setter
+	private String birthNum;
+
+
 
 	@Field("terms")
 	@Setter
@@ -43,9 +55,10 @@ public class User {
 	@Setter
 	private Boolean subscribe; //구독제 결제 유무
 
+	@Setter
 	private String select_model;
 
-	private String domain; // 어떤 소셜 로그인인지 분기
+	private Domain domain; // 어떤 소셜 로그인인지 분기
 
 	private UserRole userRole;
 

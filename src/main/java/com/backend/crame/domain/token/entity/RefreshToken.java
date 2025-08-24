@@ -1,4 +1,4 @@
-package com.backend.crame.global.token.entity;
+package com.backend.crame.domain.token.entity;
 
 import java.time.Instant;
 
