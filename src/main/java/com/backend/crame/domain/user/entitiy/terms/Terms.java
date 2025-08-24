@@ -1,4 +1,4 @@
-package com.backend.crame.domain.terms;
+package com.backend.crame.domain.user.entitiy.terms;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,7 +10,8 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Terms {
-		private boolean termsOfService;
+		private boolean phonePolicy;
+		private boolean creditPolicy;
 		private boolean privacyPolicy;
 		private boolean marketing;
 }
