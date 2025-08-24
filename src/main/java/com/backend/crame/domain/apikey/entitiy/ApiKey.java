@@ -17,9 +17,9 @@ import lombok.Setter;
 @NoArgsConstructor(access =  AccessLevel.PROTECTED)
 public class ApiKey extends BaseTimeEntity {
 	@Id
-	private String key_uuid;
+	private String uuid;
 
-	private String user_uuid;
+	private String userId;
 
 	@Setter
 	private String nickname;
@@ -27,15 +27,19 @@ public class ApiKey extends BaseTimeEntity {
 
 	private String publicKey;
 
+	@Setter
+	private String keyVersion;
+
 	private String secretKey;
 
 	@Builder
-	private ApiKey(String key_uuid, String user_uuid, String nickname, String publicKey, String secretKey){
-		this.key_uuid = key_uuid;
-		this.user_uuid = user_uuid;
+	private ApiKey(String key_uuid, String user_uuid, String nickname, String publicKey, String secretKey,String keyVersion){
+		this.uuid = key_uuid;
+		this.userId = user_uuid;
 		this.nickname = nickname;
 		this.publicKey = publicKey;
 		this.secretKey = secretKey;
+		this.keyVersion = keyVersion;
 	}
 
 

@@ -15,7 +15,11 @@ public enum SuccessCode {
 	SIGNUP_SUCCESS(HttpStatus.OK,"회원가입에 성공하였습니다."),
 	NEWTOKEN_SUCCESS(HttpStatus.OK,"토큰 재발급에 성공하였습니다."),
 	IDFOUND_SUCCESS(HttpStatus.OK,"아이디 찾기에 성공하였습니다."),
-	PASSWORD_BEFORE_SUCCESS(HttpStatus.OK,"비밀번호 찾기(before)에 성공하였습니다.");
+	PASSWORD_BEFORE_SUCCESS(HttpStatus.OK,"비밀번호 찾기(before)에 성공하였습니다."),
+
+	API_KEY_MAKE_SUCCESS(HttpStatus.OK,"API 키 등록에 성공하였습니다."),
+	API_KEY_DELETE_SUCCESS(HttpStatus.OK,"API 키 삭제에 성공하였습니다."),
+	API_KEY_GET_SUCCESS(HttpStatus.OK,"API 키 조회에 성공하였습니다.");
 
 
 
