@@ -40,6 +40,10 @@ jobs:
           echo "  data:" >> src/main/resources/application.yml
           echo "    mongodb:" >> src/main/resources/application.yml
           echo "      uri: \"${{ secrets.MONGO_URI_DEV }}\"" >> src/main/resources/application.yml
+          echo "    redis:" >> src/main/resources/application.yml
+          echo "      host: redis" >> src/main/resources/application.yml
+          echo "      port: 6379" >> src/main/resources/application.yml
+          echo "      password: \"${{ secrets.REDIS_PASSWORD }}\"" >> src/main/resources/application.yml
           echo "springdoc:" >> src/main/resources/application.yml
           echo "  swagger-ui:" >> src/main/resources/application.yml
           echo "    path: /swagger-ui.html" >> src/main/resources/application.yml
@@ -76,6 +80,10 @@ jobs:
           echo "  data:" >> src/main/resources/application.yml
           echo "    mongodb:" >> src/main/resources/application.yml
           echo "      uri: \"${{ secrets.MONGO_URI }}\"" >> src/main/resources/application.yml
+          echo "    redis:" >> src/main/resources/application.yml
+          echo "      host: redis" >> src/main/resources/application.yml
+          echo "      port: 6379" >> src/main/resources/application.yml
+          echo "      password: \"${{ secrets.REDIS_PASSWORD }}\"" >> src/main/resources/application.yml
           echo "springdoc:" >> src/main/resources/application.yml
           echo "  swagger-ui:" >> src/main/resources/application.yml
           echo "    path: /swagger-ui.html" >> src/main/resources/application.yml
