@@ -84,9 +84,18 @@ public class UserService {
 			});
 	}
 
-	//아이디 찾기 -> 아마 이름 + 생년월일로 찾아야하지 않을까
+	//아이디 찾기 -> 이메일로 찾기
+	public Mono<String> getId(String email){
+		return userRepository.findByEmail(email)
+			.switchIfEmpty(Mono.error(new BaseException(ErrorCode.USER_NOT)))
+			.map(User::getLoginId);
+	}
+
 
 	//비밀번호 찾기 -> 이름 + 이메일? 로 찾기 아니면 이메일로만 찾기
+
+
+	//비밀번호 변경
 
 
 	// 회원가입 완료 처리
@@ -101,6 +110,7 @@ public class UserService {
 				user.setWallet_uuid(request.walletUuid());
 				user.setTerms(request.terms());
 				user.setStatus(UserStatus.SUCCESS);
+				user.setPhoneNum(request.phoneNum());
 				user.setBirthDate(BirthdateParser.parseToLocalDate(request.birthNumber()));
 				//이게 일반 로그인과의 차이 부분임-> 이거 고려해서 나중에 변경하던가 해도 됨
 				user.setLoginId("");
@@ -126,6 +136,7 @@ public class UserService {
 					.email(email)
 					.loginId(request.id())
 					.name(request.name())
+					.phoneNum(request.phoneNum())
 					.password(passwordEncoder.encode(request.password()))
 					.select_model("")
 					.status(UserStatus.SUCCESS)

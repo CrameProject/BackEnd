@@ -47,6 +47,9 @@ public class User extends BaseTimeEntity {
 	@Setter
 	private LocalDate birthDate;
 
+	@Setter
+	private String phoneNum;
+
 
 	@Field("terms")
 	@Setter

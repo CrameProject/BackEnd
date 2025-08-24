@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.backend.crame.domain.user.dto.ChangeUserRequest;
@@ -75,9 +76,25 @@ public class UserController {
 	}
 
 	//아이디 찾기
+	//등록한 이메일로 찾기
+	@GetMapping("/id")
+	@Operation(summary = "ID 찾기 API")
+	public Mono<ResponseEntity<ResponseDto<String>>> getId(@RequestParam String email){
+		return userService.getId(email)
+			.map(data -> BaseResponse.success(SuccessCode.NEWTOKEN_SUCCESS, data));
+	}
 
-	//비밀 번호 찾기
+	//비밀 번호 찾기 -> 얘는 제대로 된 사람인지 검증하고 -> 맞으면
+	@GetMapping("/password/before")
+	@Operation(summary = "비밀번호 찾기 API -> 이걸 통해서 등록된 유저인지 검증 -> /password/after로 비밀번호 변경")
+	public Mono<ResponseEntity<ResponseDto<String>>> getPassword(@RequestParam String name, @RequestParam String email){
+		return userService.getNewToken(customPrincipal)
+			.map(data -> BaseResponse.success(SuccessCode.NEWTOKEN_SUCCESS, data));
+	}
 
+	//비밀번호 변경
+	// @PostMapping("/password/after")
+	// @Operation(summary = "비밀번호 변경 API")
 
 	@DeleteMapping("/logout")
 	@Operation(summary = "로그아웃 API")
