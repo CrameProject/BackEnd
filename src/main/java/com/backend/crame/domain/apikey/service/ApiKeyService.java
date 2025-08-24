@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
+import com.backend.crame.domain.apikey.dto.ApiKeyDeleteResponse;
 import com.backend.crame.domain.apikey.dto.ApiKeyRequest;
 import com.backend.crame.domain.apikey.dto.ApiKeyResponse;
 import com.backend.crame.domain.apikey.entitiy.ApiKey;
@@ -26,34 +27,57 @@ public class ApiKeyService {
 	private final UserRepository userRepository;
 	private final AesGcmCrypto aesGcmCrypto;
 
-	public Mono<Void> postNewKey(CustomPrincipal principal, ApiKeyRequest request) {
+	public Mono<ApiKeyResponse> postNewKey(CustomPrincipal principal, ApiKeyRequest request) {
 		final String uuid = UUID.randomUUID().toString();
+		final String userId = principal.getUserId();
+		final String publicKey = request.publicKey();
 
-		return userRepository.findById(principal.getUserId())
+		return userRepository.findById(userId)
 			.switchIfEmpty(Mono.error(new BaseException(ErrorCode.USER_NOT)))
-			.flatMap(user -> {
+			.then(apiKeyRepository.existsByUserIdAndPublicKey(userId, publicKey))
+			.flatMap(exists -> {
+				if (exists) {
+					return Mono.error(new BaseException(ErrorCode.API_KEY_ALREADY_EXISTS));
+				}
 				String enc = aesGcmCrypto.encrypt(request.secretKey());
 				ApiKey entity = ApiKey.builder()
 					.key_uuid(uuid)
 					.nickname(request.nickName())
-					.publicKey(request.publicKey())
+					.publicKey(publicKey)
 					.keyVersion(aesGcmCrypto.getKeyVersion())
 					.secretKey(enc)
-					.user_uuid(principal.getUserId())
+					.user_uuid(userId)
 					.build();
 				return apiKeyRepository.save(entity);
 			})
-			.then();
+			.onErrorMap(
+				ex -> ex instanceof org.springframework.dao.DuplicateKeyException,
+				ex -> new BaseException(ErrorCode.API_KEY_ALREADY_EXISTS)
+			)
+			.map(key -> {
+				String decrypted = aesGcmCrypto.decrypt(key.getSecretKey());
+				String masked = maskSecret(decrypted);
+				return new ApiKeyResponse(key.getNickname(), key.getPublicKey(), masked);
+			});
 	}
 
 
-	public Mono<Void> deleteApiKey(CustomPrincipal customPrincipal, String key_uuid){
-		return userRepository.findById(customPrincipal.getUserId())
+
+	public Mono<ApiKeyDeleteResponse> deleteApiKey(CustomPrincipal principal, String keyPublicKey) {
+		final String userId = principal.getUserId();
+
+		return userRepository.findById(userId)
 			.switchIfEmpty(Mono.error(new BaseException(ErrorCode.USER_NOT)))
-			.flatMap(user ->
-				apiKeyRepository.deleteByUuidAndUserId(key_uuid,user.getUser_uuid())
-			).then();
+			.flatMap(u -> apiKeyRepository.deleteByUserIdAndPublicKey(userId, keyPublicKey))
+			.flatMap(deleted -> {
+				if (deleted > 0) {
+					return Mono.just(new ApiKeyDeleteResponse("API KEY가 삭제되었습니다."));
+				} else {
+					return Mono.error(new BaseException(ErrorCode.API_KEY_NOT_FOUND));
+				}
+			});
 	}
+
 
 	public Mono<List<ApiKeyResponse>> getKeysByUser(CustomPrincipal customPrincipal) {
 		return apiKeyRepository.findAllByUserId(customPrincipal.getUserId())

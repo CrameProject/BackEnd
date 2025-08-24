@@ -11,6 +11,7 @@ import reactor.core.publisher.Mono;
 
 public interface ApiKeyRepository extends ReactiveMongoRepository<ApiKey,String> {
 
-	Mono<ApiKey> deleteByUuidAndUserId(String uuid,String userId);
+	Mono<Long> deleteByUserIdAndPublicKey(String userId,String publicKey);
 	Flux<ApiKey> findAllByUserId(String userId);
+	Mono<Boolean> existsByUserIdAndPublicKey(String userUuid, String publicKey);
 }

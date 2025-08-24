@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.backend.crame.domain.apikey.dto.ApiKeyDeleteResponse;
 import com.backend.crame.domain.apikey.dto.ApiKeyRequest;
 import com.backend.crame.domain.apikey.dto.ApiKeyResponse;
 import com.backend.crame.domain.apikey.service.ApiKeyService;
@@ -38,7 +39,7 @@ public class ApiKeyController {
 	//API KEY 추가
 	@PostMapping()
 	@Operation(summary = "APIKEY를 추가 API")
-	public Mono<ResponseEntity<ResponseDto<Void>>> makeKey(@AuthenticationPrincipal CustomPrincipal customPrincipal, @RequestBody
+	public Mono<ResponseEntity<ResponseDto<ApiKeyResponse>>> makeKey(@AuthenticationPrincipal CustomPrincipal customPrincipal, @RequestBody
 		ApiKeyRequest request) {
 		return apiKeyService.postNewKey(customPrincipal,request)
 			.map(data -> BaseResponse.success(SuccessCode.API_KEY_MAKE_SUCCESS, data));
@@ -47,8 +48,8 @@ public class ApiKeyController {
 	//API KEY 삭제
 	@DeleteMapping()
 	@Operation(summary = "APIKEY를 삭제 API")
-	public Mono<ResponseEntity<ResponseDto<Void>>> deleteKey(@AuthenticationPrincipal CustomPrincipal customPrincipal,@RequestParam String key_uuid) {
-		return apiKeyService.deleteApiKey(customPrincipal, key_uuid)
+	public Mono<ResponseEntity<ResponseDto<ApiKeyDeleteResponse>>> deleteKey(@AuthenticationPrincipal CustomPrincipal customPrincipal,@RequestParam String publicKey) {
+		return apiKeyService.deleteApiKey(customPrincipal,publicKey)
 			.map(data -> BaseResponse.success(SuccessCode.API_KEY_DELETE_SUCCESS, data));
 	}
 

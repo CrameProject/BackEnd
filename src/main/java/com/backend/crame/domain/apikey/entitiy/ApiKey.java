@@ -2,6 +2,7 @@ package com.backend.crame.domain.apikey.entitiy;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 import com.backend.crame.global.utils.BaseTimeEntity;
 
@@ -24,7 +25,7 @@ public class ApiKey extends BaseTimeEntity {
 	@Setter
 	private String nickname;
 
-
+	@Field("public_key")
 	private String publicKey;
 
 	@Setter
