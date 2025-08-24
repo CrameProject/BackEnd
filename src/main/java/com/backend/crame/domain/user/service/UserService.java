@@ -41,6 +41,13 @@ public class UserService {
 	//토큰 재발급
 
 	//유저 정보 조회
+	public Mono<UserInfoResponse> getInfo(CustomPrincipal customPrincipal){
+		return userRepository.findById(customPrincipal.getUserId())
+			.map(user->{
+				boolean isSocial = user.getDomain() != Domain.LOCAL;
+				return new UserInfoResponse(user.getName(),user.getBirthDate(),user.getLoginId(),user.getEmail(),isSocial);
+			});
+	}
 
 	//아이디 찾기 -> 아마 이름 + 생년월일로 찾아야하지 않을까
 

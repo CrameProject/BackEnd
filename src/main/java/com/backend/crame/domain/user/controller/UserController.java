@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.backend.crame.domain.user.dto.ChangeUserRequest;
 import com.backend.crame.domain.user.dto.SignUpRequest;
 import com.backend.crame.domain.token.entity.CustomPrincipal;
+import com.backend.crame.domain.user.dto.UserInfoResponse;
 import com.backend.crame.domain.user.service.UserService;
 import com.backend.crame.global.response.BaseResponse;
 import com.backend.crame.global.response.dto.ResponseDto;
@@ -48,7 +49,7 @@ public class UserController {
 			.map(data -> BaseResponse.success(SuccessCode.SIGNUP_SUCCESS, data));
 	}
 
-	//일반 로그인
+	//일반 로그인 -> 해야함
 	@PostMapping("/local/signIn")
 	@Operation(summary = "일반 로그인 API")
 	public Mono<ResponseEntity<ResponseDto<TokenResponse>>> signIn(@RequestBody SignUpRequest request) {
@@ -59,10 +60,16 @@ public class UserController {
 	//회원 정보 가져오기
 	@GetMapping("/info")
 	@Operation(summary = "사용자 정보 가져오기 API")
-	public Mono<ResponseEntity<ResponseDto<TokenResponse>>> getInfo(@RequestBody SignUpRequest request) {
-		return userService.signUp(request)
+	public Mono<ResponseEntity<ResponseDto<UserInfoResponse>>> getInfo(@AuthenticationPrincipal CustomPrincipal customPrincipal) {
+		return userService.getInfo(customPrincipal)
 			.map(data -> BaseResponse.success(SuccessCode.SIGNUP_SUCCESS, data));
 	}
+
+	//토큰 재발급
+
+	//아이디 찾기
+
+	//비밀 번호 찾기
 
 
 	@DeleteMapping("/logout")
