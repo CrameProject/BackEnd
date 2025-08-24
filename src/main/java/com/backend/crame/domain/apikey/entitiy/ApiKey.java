@@ -3,6 +3,8 @@ package com.backend.crame.domain.apikey.entitiy;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import com.backend.crame.global.utils.BaseTimeEntity;
+
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,7 +15,7 @@ import lombok.Setter;
 @Document(collection = "apikey")
 @Getter
 @NoArgsConstructor(access =  AccessLevel.PROTECTED)
-public class ApiKey {
+public class ApiKey extends BaseTimeEntity {
 	@Id
 	private String key_uuid;
 
