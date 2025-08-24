@@ -66,10 +66,18 @@ public class UserService {
 	}
 
 	//토큰 재발급
+	public Mono<TokenResponse> getNewToken(CustomPrincipal customPrincipal){
+		return userRepository.findById(customPrincipal.getUserId())
+			.switchIfEmpty(Mono.error(new BaseException(ErrorCode.USER_NOT)))
+			.flatMap(user ->
+					jwtTokenProvider.createToken(user.getName(),user.getUser_uuid(),user.getUserRole().toString(),user.getDomain().toString())
+			);
+	}
 
 	//유저 정보 조회
 	public Mono<UserInfoResponse> getInfo(CustomPrincipal customPrincipal){
 		return userRepository.findById(customPrincipal.getUserId())
+			.switchIfEmpty(Mono.error(new BaseException(ErrorCode.USER_NOT)))
 			.map(user->{
 				boolean isSocial = user.getDomain() != Domain.LOCAL;
 				return new UserInfoResponse(user.getName(),user.getBirthDate(),user.getLoginId(),user.getEmail(),isSocial);

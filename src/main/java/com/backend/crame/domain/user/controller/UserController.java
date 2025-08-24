@@ -50,7 +50,7 @@ public class UserController {
 			.map(data -> BaseResponse.success(SuccessCode.SIGNUP_SUCCESS, data));
 	}
 
-	//일반 로그인 -> 해야함
+	//일반 로그인
 	@PostMapping("/local/signIn")
 	@Operation(summary = "일반 로그인 API")
 	public Mono<ResponseEntity<ResponseDto<TokenResponse>>> signIn(@RequestBody SignInRequest request) {
@@ -67,6 +67,12 @@ public class UserController {
 	}
 
 	//토큰 재발급
+	@PostMapping("/newToken")
+	@Operation(summary = "토큰 재발급 API")
+	public Mono<ResponseEntity<ResponseDto<TokenResponse>>> makeNewToken(@AuthenticationPrincipal CustomPrincipal customPrincipal){
+		return userService.getNewToken(customPrincipal)
+			.map(data -> BaseResponse.success(SuccessCode.NEWTOKEN_SUCCESS, data));
+	}
 
 	//아이디 찾기
 

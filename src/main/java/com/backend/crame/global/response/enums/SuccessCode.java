@@ -12,7 +12,8 @@ public enum SuccessCode {
 	SIGNOUT_SUCCESS(HttpStatus.OK,"회원탈퇴에 성공하였습니다."),
 	INFOCHANGE_SUCCESS(HttpStatus.OK,"회원정보 수정에 성공하였습니다."),
 	GETINFO_SUCCESS(HttpStatus.OK,"회원정보를 가져오는데 성공하였습니다."),
-	SIGNUP_SUCCESS(HttpStatus.OK,"회원가입에 성공하였습니다.");
+	SIGNUP_SUCCESS(HttpStatus.OK,"회원가입에 성공하였습니다."),
+	NEWTOKEN_SUCCESS(HttpStatus.OK,"토큰 재발급에 성공하였습니다.");
 
 
 
