@@ -57,7 +57,7 @@ public class ApiKeyService {
 			.map(key -> {
 				String decrypted = aesGcmCrypto.decrypt(key.getSecretKey());
 				String masked = maskSecret(decrypted);
-				return new ApiKeyResponse(key.getNickname(), key.getPublicKey(), masked);
+				return new ApiKeyResponse(key.getNickname(), key.getPublicKey(), masked, key.getStrategyDisplayName());
 			});
 	}
 
@@ -87,7 +87,8 @@ public class ApiKeyService {
 				return new ApiKeyResponse(
 					key.getNickname(),
 					key.getPublicKey(),
-					masked
+					masked,
+					key.getStrategyDisplayName()
 				);
 			})
 			.collectList();

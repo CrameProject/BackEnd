@@ -32,9 +32,10 @@ public enum ErrorCode {
 	USER_NOT(BAD_REQUEST,404,"유저를 찾을 수 없습니다."),
 	ALREADY_REGISTERED_EMAIL(BAD_REQUEST,400,"이미 회원가입된 이메일입니다."),
 	NOT_LOCAL_ACCOUNT(BAD_REQUEST,404,"로컬 계정이 아닙니다."),
-	SIGNUP_INCOMPLETE(BAD_REQUEST,400,"회원가입이 완료되지 않은 계정입니다.");
+	SIGNUP_INCOMPLETE(BAD_REQUEST,400,"회원가입이 완료되지 않은 계정입니다."),
 
-
+	// Quant 관련 에러 코드
+	INVALID_REQUEST(BAD_REQUEST,400,"잘못된 요청입니다.");
 
 	private final HttpStatus status;
 	private final int code;

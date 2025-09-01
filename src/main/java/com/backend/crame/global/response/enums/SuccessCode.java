@@ -19,9 +19,11 @@ public enum SuccessCode {
 
 	API_KEY_MAKE_SUCCESS(HttpStatus.OK,"API 키 등록에 성공하였습니다."),
 	API_KEY_DELETE_SUCCESS(HttpStatus.OK,"API 키 삭제에 성공하였습니다."),
-	API_KEY_GET_SUCCESS(HttpStatus.OK,"API 키 조회에 성공하였습니다.");
+	API_KEY_GET_SUCCESS(HttpStatus.OK,"API 키 조회에 성공하였습니다."),
 
-
+	// Quant 관련 성공 코드
+	UPDATE_SUCCESS(HttpStatus.OK,"업데이트에 성공하였습니다."),
+	GET_SUCCESS(HttpStatus.OK,"조회에 성공하였습니다.");
 
 	private final HttpStatus code;
 	private final String message;

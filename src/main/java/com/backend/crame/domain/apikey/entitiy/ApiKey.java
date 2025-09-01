@@ -4,6 +4,9 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
+import com.backend.crame.domain.quant.entity.AiStrategy;
+import com.backend.crame.domain.quant.entity.AlgorithmStrategy;
+import com.backend.crame.domain.quant.entity.TradingType;
 import com.backend.crame.global.utils.BaseTimeEntity;
 
 import lombok.AccessLevel;
@@ -33,6 +36,18 @@ public class ApiKey extends BaseTimeEntity {
 
 	private String secretKey;
 
+	@Setter
+	@Field("trading_type")
+	private TradingType tradingType;
+
+	@Setter
+	@Field("algorithm_strategy")
+	private AlgorithmStrategy algorithmStrategy;
+
+	@Setter
+	@Field("ai_strategy")
+	private AiStrategy aiStrategy;
+
 	@Builder
 	private ApiKey(String key_uuid, String user_uuid, String nickname, String publicKey, String secretKey,String keyVersion){
 		this.uuid = key_uuid;
@@ -43,5 +58,14 @@ public class ApiKey extends BaseTimeEntity {
 		this.keyVersion = keyVersion;
 	}
 
+	// 전략 정보를 문자열로 반환하는 헬퍼 메서드
+	public String getStrategyDisplayName() {
+		if (tradingType == TradingType.ALGORITHM && algorithmStrategy != null) {
+			return tradingType.getDisplayName() + " " + algorithmStrategy.getDisplayName();
+		} else if (tradingType == TradingType.AI && aiStrategy != null) {
+			return tradingType.getDisplayName() + " " + aiStrategy.getDisplayName();
+		}
+		return tradingType != null ? tradingType.getDisplayName() : "";
+	}
 
 }
