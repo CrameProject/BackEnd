@@ -1,173 +1,76 @@
-name: CD with Gradle
+name: backend cd
 
 on:
   push:
-    branches: [ "main", "dev" ]
+    branches: [ main, dev ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOCKER_IMAGE_REPO: ${{ secrets.DOCKER_IMAGE_REPO }} # ex) hyuneun/crame
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up JDK 21
+      - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
-          java-version: '21'
-          distribution: 'temurin'
+          java-version: '17'
+          distribution: temurin
 
-      - name: Create application.yml with secrets (dev)
-        if: github.ref == 'refs/heads/dev'
-        run: |
-          mkdir -p src/main/resources
-          echo "spring:" >> src/main/resources/application.yml
-          echo "  jwt:" >> src/main/resources/application.yml
-          echo "    secret: \"${{ secrets.JWT_SECRET }}\"" >> src/main/resources/application.yml
-          echo "    access-token-duration: 10D" >> src/main/resources/application.yml
-          echo "    refresh-token-duration: 100D" >> src/main/resources/application.yml
-          echo "  security:" >> src/main/resources/application.yml
-          echo "    oauth2:" >> src/main/resources/application.yml
-          echo "      client:" >> src/main/resources/application.yml
-          echo "        registration:" >> src/main/resources/application.yml
-          echo "          google:" >> src/main/resources/application.yml
-          echo "            client-id: \"${{ secrets.GOOGLE_CLIENT_ID }}\"" >> src/main/resources/application.yml
-          echo "            client-secret: \"${{ secrets.GOOGLE_CLIENT_SECRET }}\"" >> src/main/resources/application.yml
-          echo "            scope:" >> src/main/resources/application.yml
-          echo "              - email" >> src/main/resources/application.yml
-          echo "              - profile" >> src/main/resources/application.yml
-          echo "            redirect-uri: https://dev.crame.site/login/oauth2/code/google" >> src/main/resources/application.yml
-          echo "  data:" >> src/main/resources/application.yml
-          echo "    mongodb:" >> src/main/resources/application.yml
-          echo "      uri: \"${{ secrets.MONGO_URI_DEV }}\"" >> src/main/resources/application.yml
-          echo "    redis:" >> src/main/resources/application.yml
-          echo "      host: redis" >> src/main/resources/application.yml
-          echo "      port: 6379" >> src/main/resources/application.yml
-          echo "      password: \"${{ secrets.REDIS_PASSWORD }}\"" >> src/main/resources/application.yml
-          echo "  mail:" >> src/main/resources/application.yml
-          echo "    host: smtp.gmail.com" >> src/main/resources/application.yml
-          echo "    port: 587" >> src/main/resources/application.yml
-          echo "    username: \"${{ secrets.MAIL_USERNAME }}\"" >> src/main/resources/application.yml
-          echo "    password: \"${{ secrets.MAIL_PASSWORD }}\"" >> src/main/resources/application.yml
-          echo "    properties:" >> src/main/resources/application.yml
-          
-          echo "      mail.smtp.auth: true" >> src/main/resources/application.yml
-          echo "      mail.smtp.starttls.enable: true" >> src/main/resources/application.yml
-          echo "      mail.smtp.connectiontimeout: 5000" >> src/main/resources/application.yml
-          echo "      mail.smtp.timeout: 5000" >> src/main/resources/application.yml
-          echo "      mail.smtp.writetimeout: 5000" >> src/main/resources/application.yml
-          echo "      mail.mime.charset: UTF-8" >> src/main/resources/application.yml
-          echo "    default-encoding: UTF-8" >> src/main/resources/application.yml
+      - name: Build (skip tests)
+        run: ./gradlew build -x test
 
-          echo "app:" >> src/main/resources/application.yml
-          echo "  secrets:" >> src/main/resources/application.yml
-          echo "    master-key-base64: \"${{ secrets.MASTER_KEY_BASE64 }}\"" >> src/main/resources/application.yml
-          echo "    key-version: kv1" >> src/main/resources/application.yml
-          echo "  mail:" >> src/main/resources/application.yml
-          echo "    from: \"${{ secrets.MAIL_USERNAME }}\"" >> src/main/resources/application.yml
-          echo "    from-personal: \"CRAME\"" >> src/main/resources/application.yml
-
-          echo "otp:" >> src/main/resources/application.yml
-          echo "  ttl-seconds: 300" >> src/main/resources/application.yml
-          echo "  cooldown-seconds: 60" >> src/main/resources/application.yml
-          echo "  max-attempts: 5" >> src/main/resources/application.yml
-          echo "  rate:" >> src/main/resources/application.yml
-          echo "    window-seconds: 60" >> src/main/resources/application.yml
-          echo "    max-per-window: 6" >> src/main/resources/application.yml
-          echo "springdoc:" >> src/main/resources/application.yml
-          echo "  swagger-ui:" >> src/main/resources/application.yml
-          echo "    path: /swagger-ui.html" >> src/main/resources/application.yml
-          echo "  default-server-url: https://dev.crame.site" >> src/main/resources/application.yml
-          echo "  servers:" >> src/main/resources/application.yml
-          echo "    - url: https://dev.crame.site" >> src/main/resources/application.yml
-
-      - name: Print application.yml (dev)
-        if: github.ref == 'refs/heads/dev'
-        run: |
-          echo "====== DEV application.yml ======"
-          cat src/main/resources/application.yml
-          
-      - name: Create application.yml with secrets (main)
-        if: github.ref == 'refs/heads/main'
-        run: |
-          mkdir -p src/main/resources
-          echo "spring:" >> src/main/resources/application.yml
-          echo "  jwt:" >> src/main/resources/application.yml
-          echo "    secret: \"${{ secrets.JWT_SECRET }}\"" >> src/main/resources/application.yml
-          echo "    access-token-duration: 10D" >> src/main/resources/application.yml
-          echo "    refresh-token-duration: 100D" >> src/main/resources/application.yml
-          echo "  security:" >> src/main/resources/application.yml
-          echo "    oauth2:" >> src/main/resources/application.yml
-          echo "      client:" >> src/main/resources/application.yml
-          echo "        registration:" >> src/main/resources/application.yml
-          echo "          google:" >> src/main/resources/application.yml
-          echo "            client-id: \"${{ secrets.GOOGLE_CLIENT_ID }}\"" >> src/main/resources/application.yml
-          echo "            client-secret: \"${{ secrets.GOOGLE_CLIENT_SECRET }}\"" >> src/main/resources/application.yml
-          echo "            scope:" >> src/main/resources/application.yml
-          echo "              - email" >> src/main/resources/application.yml
-          echo "              - profile" >> src/main/resources/application.yml
-          echo "            redirect-uri: https://crame.site/login/oauth2/code/google" >> src/main/resources/application.yml
-          echo "  data:" >> src/main/resources/application.yml
-          echo "    mongodb:" >> src/main/resources/application.yml
-          echo "      uri: \"${{ secrets.MONGO_URI }}\"" >> src/main/resources/application.yml
-          echo "    redis:" >> src/main/resources/application.yml
-          echo "      host: redis" >> src/main/resources/application.yml
-          echo "      port: 6379" >> src/main/resources/application.yml
-          echo "      password: \"${{ secrets.REDIS_PASSWORD }}\"" >> src/main/resources/application.yml
-          echo "  mail:" >> src/main/resources/application.yml
-          echo "    host: smtp.gmail.com" >> src/main/resources/application.yml
-          echo "    port: 587" >> src/main/resources/application.yml
-          echo "    username: \"${{ secrets.MAIL_USERNAME }}\"" >> src/main/resources/application.yml
-          echo "    password: \"${{ secrets.MAIL_PASSWORD }}\"" >> src/main/resources/application.yml
-          echo "    properties:" >> src/main/resources/application.yml
-          echo "      mail.smtp.auth: true" >> src/main/resources/application.yml
-          echo "      mail.smtp.starttls.enable: true" >> src/main/resources/application.yml
-          echo "      mail.smtp.connectiontimeout: 5000" >> src/main/resources/application.yml
-          echo "      mail.smtp.timeout: 5000" >> src/main/resources/application.yml
-          echo "      mail.smtp.writetimeout: 5000" >> src/main/resources/application.yml
-          echo "      mail.mime.charset: UTF-8" >> src/main/resources/application.yml
-          echo "    default-encoding: UTF-8" >> src/main/resources/application.yml
-
-          echo "app:" >> src/main/resources/application.yml
-          echo "  secrets:" >> src/main/resources/application.yml
-          echo "    master-key-base64: \"${{ secrets.MASTER_KEY_BASE64 }}\"" >> src/main/resources/application.yml
-          echo "    key-version: kv1" >> src/main/resources/application.yml
-          echo "  mail:" >> src/main/resources/application.yml
-          echo "    from: \"${{ secrets.MAIL_USERNAME }}\"" >> src/main/resources/application.yml
-          echo "    from-personal: \"CRAME\"" >> src/main/resources/application.yml
-
-          echo "otp:" >> src/main/resources/application.yml
-          echo "  ttl-seconds: 300" >> src/main/resources/application.yml
-          echo "  cooldown-seconds: 60" >> src/main/resources/application.yml
-          echo "  max-attempts: 5" >> src/main/resources/application.yml
-          echo "  rate:" >> src/main/resources/application.yml
-          echo "    window-seconds: 60" >> src/main/resources/application.yml
-          echo "    max-per-window: 6" >> src/main/resources/application.yml
-          echo "springdoc:" >> src/main/resources/application.yml
-          echo "  swagger-ui:" >> src/main/resources/application.yml
-          echo "    path: /swagger-ui.html" >> src/main/resources/application.yml
-
-      - name: Build with Gradle Wrapper
-        run: |
-          chmod +x ./gradlew
-          ./gradlew build -x test
-
-      - name: Transfer .jar file to EC2
-        uses: appleboy/scp-action@master
+      - name: Docker login
+        uses: docker/login-action@v3
         with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ubuntu
-          key: ${{ secrets.SSH_KEY }}
-          source: "build/libs/*.jar"
-          target: "/home/ubuntu/crame"
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_TOKEN }}
 
-      - name: Restart docker compose on EC2
+      - name: Build & Push image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          platforms: linux/arm64
+          tags: |
+            ${{ env.DOCKER_IMAGE_REPO }}:${{ github.ref_name }}
+            ${{ env.DOCKER_IMAGE_REPO }}:${{ github.sha }}
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy on server
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ubuntu
           key: ${{ secrets.SSH_KEY }}
           script: |
-            cd ~/crame
-            docker compose up -d --build
+            set -e
+            cd /home/ubuntu/crame
+            [ -f .env ] || touch .env
+
+            # DOCKER_IMAGE_REPO 업데이트
+            if grep -q '^DOCKER_IMAGE_REPO=' .env; then
+              sed -i "s|^DOCKER_IMAGE_REPO=.*|DOCKER_IMAGE_REPO=${{ env.DOCKER_IMAGE_REPO }}|" .env
+            else
+              echo "DOCKER_IMAGE_REPO=${{ env.DOCKER_IMAGE_REPO }}" >> .env
+            fi
+
+            # 브랜치명(main/dev)으로 태그 업데이트
+            if grep -q '^DOCKER_IMAGE_TAG=' .env; then
+              sed -i "s|^DOCKER_IMAGE_TAG=.*|DOCKER_IMAGE_TAG=${{ github.ref_name }}|" .env
+            else
+              echo "DOCKER_IMAGE_TAG=${{ github.ref_name }}" >> .env
+            fi
+
+            docker compose pull
+            docker compose up -d
             docker image prune -f
