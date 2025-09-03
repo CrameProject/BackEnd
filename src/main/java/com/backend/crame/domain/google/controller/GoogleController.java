@@ -15,7 +15,7 @@ import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping("/api/v1/google")
+@RequestMapping("/api/v1/auth/google")
 @Tag(name = "구글 로그인 API", description = "구글 로그인 관련 API입니다.")
 @RequiredArgsConstructor
 public class GoogleController {

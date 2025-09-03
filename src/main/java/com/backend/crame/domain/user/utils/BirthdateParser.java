@@ -10,7 +10,7 @@ public class BirthdateParser {
 		// 숫자만 추출
 		String digits = input.replaceAll("\\D", "");
 		if (digits.length() < 7) {
-			throw new IllegalArgumentException("형식 오류: 최소 7자리(YYMMDD + 코드)가 필요합니다.");
+			throw new IllegalArgumentException("형식 오류: 최소 7자리(YYMMDD + 뒷자리 한자리)가 필요합니다.");
 		}
 
 		String yymmdd = digits.substring(0, 6);

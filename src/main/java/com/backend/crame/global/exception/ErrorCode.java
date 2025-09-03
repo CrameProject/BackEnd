@@ -14,7 +14,7 @@ import lombok.Getter;
 @Getter
 public enum ErrorCode {
 
-
+	GOOGLE_LOGIN_FAIL(BAD_REQUEST,404,"구글 로그인에 실패하였습니다."),
 	LOGIN_FAIL(HttpStatus.BAD_REQUEST,400,"로그인에 오류가 발생하였습니다."),
 	INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR,500,"서버에 오류가 발생하였습니다."),
 	JWT_KEY_GENERATION_FAILED(HttpStatus.BAD_REQUEST,400,"JWT 키 생성에 실패하였습니다."),

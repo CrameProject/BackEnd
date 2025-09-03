@@ -8,7 +8,12 @@ import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.backend.crame.domain.user.entitiy.Domain;
@@ -57,23 +62,24 @@ public class GoogleOAuthService {
 
 		return webClient.post()
 			.uri("https://oauth2.googleapis.com/token")
-			.bodyValue(Map.of(
-				"code", decodedCode,
-				"client_id", clientId,
-				"client_secret", clientSecret,
-				"redirect_uri", redirectUri,
-				"grant_type", "authorization_code"
-			))
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.body(BodyInserters.fromFormData("grant_type", "authorization_code")
+				.with("client_id", clientId)
+				.with("client_secret", clientSecret)
+				.with("redirect_uri", redirectUri)
+				.with("code", decodedCode))
 			.retrieve()
-			.bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {})
+			.bodyToMono(Map.class)
 			.map(body -> {
-				if (!body.containsKey("access_token")) {
-					throw new BaseException(ErrorCode.LOGIN_FAIL);
+				String token = (String)body.get("access_token");
+				if (token == null) {
+					throw new BaseException(ErrorCode.GOOGLE_LOGIN_FAIL);
 				}
-				return (String) body.get("access_token");
-			});
-
+				return token;
+			})
+			.onErrorMap(e -> new BaseException(ErrorCode.GOOGLE_LOGIN_FAIL));
 	}
+
 
 	private Mono<Map<String, Object>> fetchUserInfo(String accessToken) {
 		return webClient.get()
