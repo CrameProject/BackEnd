@@ -12,7 +12,9 @@ import com.backend.crame.global.response.BaseResponse;
 import com.backend.crame.global.response.enums.SuccessCode;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.security.access.prepost.PreAuthorize;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
@@ -27,8 +29,8 @@ public class IndicatorController {
 
     @PostMapping
     @Operation(summary = "월별 경제지표 조회", description = "년월(YYYYMM)을 입력받아 해당 월의 모든 경제지표를 조회합니다.")
-    // @SecurityRequirement(name = "bearerAuth")
-    // @PreAuthorize("hasRole('USER')")
+    @SecurityRequirement(name = "bearerAuth")
+    @PreAuthorize("hasRole('USER')")
     public Mono<ResponseEntity<?>> getIndicators(@Valid @RequestBody IndicatorRequest request) {
         return indicatorService.getIndicatorsByMonth(request)
                 .map(response -> BaseResponse.success(SuccessCode.INDICATOR_SUCCESS, response));
