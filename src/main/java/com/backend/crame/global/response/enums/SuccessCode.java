@@ -24,12 +24,15 @@ public enum SuccessCode {
 	// Quant 관련 성공 코드
 	UPDATE_SUCCESS(HttpStatus.OK,"업데이트에 성공하였습니다."),
 	GET_SUCCESS(HttpStatus.OK,"조회에 성공하였습니다.");
+  
+  // 지표 관련 성공 코드
+  INDICATOR_SUCCESS(HttpStatus.OK, "경제 지표 조회에 성공하였습니다."),
+	NEWS_SUCCESS(HttpStatus.OK, "뉴스 조회에 성공하였습니다.");
 
 	private final HttpStatus code;
 	private final String message;
 
-
-    SuccessCode(HttpStatus code, String message){
+	SuccessCode(HttpStatus code, String message) {
 		this.code = code;
 		this.message = message;
 	}
