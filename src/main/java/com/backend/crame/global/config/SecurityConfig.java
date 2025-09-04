@@ -15,8 +15,8 @@ import org.springframework.security.web.server.util.matcher.AndServerWebExchange
 import org.springframework.security.web.server.util.matcher.NegatedServerWebExchangeMatcher;
 import org.springframework.security.web.server.util.matcher.ServerWebExchangeMatchers;
 
-import com.backend.crame.global.token.service.JwtAuthenticationConverter;
-import com.backend.crame.global.token.service.JwtAuthenticationManager;
+import com.backend.crame.domain.token.service.JwtAuthenticationConverter;
+import com.backend.crame.domain.token.service.JwtAuthenticationManager;
 
 import lombok.RequiredArgsConstructor;
 
@@ -50,7 +50,7 @@ public class SecurityConfig {
 
 			.authorizeExchange(exchange -> exchange
 				.pathMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-				.pathMatchers("/", "/login/**", "/oauth2/**", "/auth/**", "/swagger-ui.html", "/swagger-ui/**",
+				.pathMatchers("/", "/login/**", "/oauth2/**", "/auth/**", "/swagger-ui.html", "/swagger-ui/**","/api/v1/auth/**",
 					"/v3/api-docs/**", "/webjars/**", "/favicon.ico", "/docs", "/health/**", "/api/v3/api-docs/**")
 				.permitAll()
 				.anyExchange().authenticated()

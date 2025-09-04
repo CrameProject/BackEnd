@@ -2,7 +2,7 @@ package com.backend.crame.domain.google.entity;
 
 import java.util.Map;
 
-import com.backend.crame.global.token.entity.OAuth2UserInfo;
+import com.backend.crame.domain.token.entity.OAuth2UserInfo;
 
 import lombok.AllArgsConstructor;
 

@@ -4,22 +4,27 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import com.backend.crame.domain.google.dto.SignUpRequest;
+import com.backend.crame.domain.user.entitiy.Domain;
 import com.backend.crame.domain.user.entitiy.User;
 import com.backend.crame.domain.user.entitiy.UserRole;
 import com.backend.crame.domain.user.entitiy.UserStatus;
 import com.backend.crame.domain.user.repository.UserRepository;
 import com.backend.crame.global.exception.BaseException;
 import com.backend.crame.global.exception.ErrorCode;
-import com.backend.crame.global.token.entity.RefreshToken;
-import com.backend.crame.global.token.repository.RefreshTokenRepository;
-import com.backend.crame.global.token.service.JwtTokenProvider;
+import com.backend.crame.domain.token.repository.RefreshTokenRepository;
+import com.backend.crame.domain.token.service.JwtTokenProvider;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -57,23 +62,24 @@ public class GoogleOAuthService {
 
 		return webClient.post()
 			.uri("https://oauth2.googleapis.com/token")
-			.bodyValue(Map.of(
-				"code", decodedCode,
-				"client_id", clientId,
-				"client_secret", clientSecret,
-				"redirect_uri", redirectUri,
-				"grant_type", "authorization_code"
-			))
+			.contentType(MediaType.APPLICATION_FORM_URLENCODED)
+			.body(BodyInserters.fromFormData("grant_type", "authorization_code")
+				.with("client_id", clientId)
+				.with("client_secret", clientSecret)
+				.with("redirect_uri", redirectUri)
+				.with("code", decodedCode))
 			.retrieve()
-			.bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {})
+			.bodyToMono(Map.class)
 			.map(body -> {
-				if (!body.containsKey("access_token")) {
-					throw new BaseException(ErrorCode.LOGIN_FAIL);
+				String token = (String)body.get("access_token");
+				if (token == null) {
+					throw new BaseException(ErrorCode.GOOGLE_LOGIN_FAIL);
 				}
-				return (String) body.get("access_token");
-			});
-
+				return token;
+			})
+			.onErrorMap(e -> new BaseException(ErrorCode.GOOGLE_LOGIN_FAIL));
 	}
+
 
 	private Mono<Map<String, Object>> fetchUserInfo(String accessToken) {
 		return webClient.get()
@@ -88,18 +94,23 @@ public class GoogleOAuthService {
 		if (email == null) {
 			return Mono.error(new BaseException(ErrorCode.LOGIN_FAIL));
 		}
+		String uuid = UUID.randomUUID().toString();
 
 		return userRepository.findByEmail(email)
 			.flatMap(user -> {
 				if (user.getStatus() == UserStatus.SUCCESS) {
-					return jwtTokenProvider.createToken(user.getUser_uuid())
+					return jwtTokenProvider.createToken(user.getName(),user.getUser_uuid(),user.getUserRole().toString(),user.getDomain().toString())
 						.map(tokenResponse ->{
 							Map<String, Object> result = new HashMap<>();
 							result.put("accessToken", tokenResponse.accessToken());
+							result.put("refreshToken",tokenResponse.refreshToken());
+							result.put("userName",tokenResponse.userName());
 							result.put("isSignedUp", true);
 							return result;
 				});
-				} else {
+				} else if(user.getStatus() == UserStatus.DELETED){
+					return Mono.error(new BaseException(ErrorCode.ALREADY_SIGNOUT_USER));
+				}else {
 					Map<String, Object> result = new HashMap<>();
 					result.put("message", "회원가입이 필요합니다");
 					result.put("email", email);
@@ -109,9 +120,10 @@ public class GoogleOAuthService {
 			})
 			.switchIfEmpty(
 				userRepository.save(User.builder()
+						.user_uuid(uuid)
 						.email(email)
 						.status(UserStatus.PENDING)
-						.domain("Google")
+						.domain(Domain.valueOf("GOOGLE"))
 						.subscribe(false)
 						.select_model("")
 						.wallet_uuid("")
@@ -126,40 +138,4 @@ public class GoogleOAuthService {
 	}
 
 
-	// 회원가입 완료 처리
-	public Mono<Map<String, Object>> completeSignup(SignUpRequest request) {
-		log.info("회원가입 요청: {}", request.email());
-
-		return userRepository.findByEmail(request.email())
-			.switchIfEmpty(Mono.defer(() -> {
-				log.warn("해당 이메일 없음: {}", request.email());
-				return Mono.error(new BaseException(ErrorCode.SIGNUP_ERROR));
-			}))
-			.flatMap(user -> {
-				log.info("유저 발견: {}", user.getEmail());
-				user.setName(request.name());
-				user.setWallet_uuid(request.walletUuid());
-				user.setTerms(request.terms());
-				user.setStatus(UserStatus.SUCCESS);
-				log.info("유저 정보 업데이트 완료");
-				return userRepository.save(user);
-			})
-			.flatMap(user -> jwtTokenProvider.createToken(user.getUser_uuid()))
-			.map(token -> {
-				log.info("토큰 생성 완료");
-				return Map.of(
-					"accessToken", token.accessToken(),
-					"message", "회원가입 완료"
-				);
-			});
-	}
-
-
-
-
-	public Mono<RefreshToken> logOut(String userId){
-		return refreshTokenRepository.deleteByUserId(userId)
-			.switchIfEmpty(Mono.error(new BaseException(ErrorCode.LOGOUT_ERROR)));
-
-	}
 }
