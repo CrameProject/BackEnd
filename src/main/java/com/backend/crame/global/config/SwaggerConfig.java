@@ -1,21 +1,32 @@
 package com.backend.crame.global.config;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.stereotype.Component;
-
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-@Component
+@Configuration
 public class SwaggerConfig {
+
 	@Bean
-	public OpenAPI openAPI() {
+	public OpenAPI openAPI(Environment env) {
+		boolean isProd = Arrays.asList(env.getActiveProfiles()).contains("prod");
+
+		List<Server> servers = new ArrayList<>();
+		servers.add(new Server().url("https://api.crame.site").description("Production API"));
+		if (!isProd) {
+			servers.add(new Server().url("http://localhost:8080").description("Local Dev"));
+		}
+
 		SecurityRequirement securityRequirement = new SecurityRequirement().addList("BearerAuth");
 
 		return new OpenAPI()
@@ -23,9 +34,7 @@ public class SwaggerConfig {
 				.info(apiInfo())
 				.addSecurityItem(securityRequirement)
 				.schemaRequirement("BearerAuth", securityScheme())
-				.servers(List.of(
-						new Server().url("https://api.crame.site").description("Production API")
-				));
+				.servers(servers);
 	}
 
 	private Info apiInfo() {
