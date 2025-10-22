@@ -25,39 +25,36 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-	private final CorsConfig corsConfig;
+    @Bean
+    public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http,
+                                                         JwtAuthenticationManager jwtAuthenticationManager,
+                                                         JwtAuthenticationConverter jwtAuthenticationConverter) {
 
-	@Bean
-	public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http,
-		JwtAuthenticationManager jwtAuthenticationManager,
-		JwtAuthenticationConverter jwtAuthenticationConverter) {
+        AuthenticationWebFilter jwtFilter = new AuthenticationWebFilter(jwtAuthenticationManager);
+        jwtFilter.setSecurityContextRepository(NoOpServerSecurityContextRepository.getInstance());
+        jwtFilter.setServerAuthenticationConverter(jwtAuthenticationConverter);
+        jwtFilter.setRequiresAuthenticationMatcher(
+                new AndServerWebExchangeMatcher(
+                        ServerWebExchangeMatchers.pathMatchers("/api/**"),
+                        new NegatedServerWebExchangeMatcher(
+                                ServerWebExchangeMatchers.pathMatchers("/api/v3/api-docs/**")
+                        )
+                )
+        );
 
-		AuthenticationWebFilter jwtFilter = new AuthenticationWebFilter(jwtAuthenticationManager);
-		jwtFilter.setSecurityContextRepository(NoOpServerSecurityContextRepository.getInstance());
-		jwtFilter.setServerAuthenticationConverter(jwtAuthenticationConverter);
-		jwtFilter.setRequiresAuthenticationMatcher(
-			new AndServerWebExchangeMatcher(
-				ServerWebExchangeMatchers.pathMatchers("/api/**"),
-				new NegatedServerWebExchangeMatcher(
-					ServerWebExchangeMatchers.pathMatchers("/api/v3/api-docs/**")
-				)
-			)
-		);
+        return http
+                // .cors(cors -> cors.configurationSource(corsConfig.corsConfigurationSource()))
+                .cors(ServerHttpSecurity.CorsSpec::disable)  // CORS 비활성화
+                .csrf(ServerHttpSecurity.CsrfSpec::disable)
 
-		return http
-			.cors(cors -> cors.configurationSource(corsConfig.corsConfigurationSource()))
-			.csrf(ServerHttpSecurity.CsrfSpec::disable)
-
-			.authorizeExchange(exchange -> exchange
-				.pathMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-				.pathMatchers("/", "/login/**", "/oauth2/**", "/auth/**", "/swagger-ui.html", "/swagger-ui/**","/api/v1/auth/**",
-					"/v3/api-docs/**", "/webjars/**", "/favicon.ico", "/docs", "/health/**", "/api/v3/api-docs/**")
-				.permitAll()
-				.anyExchange().authenticated()
-			)
-			.addFilterAt(jwtFilter, SecurityWebFiltersOrder.AUTHENTICATION)
-			.build();
-	}
-
-
+                .authorizeExchange(exchange -> exchange
+                        .pathMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .pathMatchers("/", "/login/**", "/oauth2/**", "/auth/**", "/swagger-ui.html", "/swagger-ui/**","/api/v1/auth/**",
+                                "/v3/api-docs/**", "/webjars/**", "/favicon.ico", "/docs", "/health/**", "/api/v3/api-docs/**")
+                        .permitAll()
+                        .anyExchange().authenticated()
+                )
+                .addFilterAt(jwtFilter, SecurityWebFiltersOrder.AUTHENTICATION)
+                .build();
+    }
 }
