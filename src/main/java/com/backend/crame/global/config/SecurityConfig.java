@@ -1,7 +1,5 @@
 package com.backend.crame.global.config;
 
-
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -43,7 +41,6 @@ public class SecurityConfig {
         );
 
         return http
-                // .cors(cors -> cors.configurationSource(corsConfig.corsConfigurationSource()))
                 .cors(ServerHttpSecurity.CorsSpec::disable)  // CORS 비활성화
                 .csrf(ServerHttpSecurity.CsrfSpec::disable)
 
